@@ -1,0 +1,13 @@
+{
+  "name": "smart-qr-attendance-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Root scripts to run backend and frontend together",
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "concurrently -n backend,frontend -c cyan,magenta \"npm start --prefix backend\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}

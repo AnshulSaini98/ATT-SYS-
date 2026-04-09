@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStoredUser, loginUser, setStoredUser } from "../services";
+import uniBanner from "../assets/subharti-banner.webp";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ const LoginPage = () => {
       navigate("/teacher", { replace: true });
     } else if (user.role === "student") {
       navigate("/student", { replace: true });
+    } else if (user.role === "admin") {
+      navigate("/admin", { replace: true });
     }
   }, [navigate]);
 
@@ -36,8 +39,10 @@ const LoginPage = () => {
         navigate("/teacher", { replace: true });
       } else if (data.user.role === "student") {
         navigate("/student", { replace: true });
+      } else if (data.user.role === "admin") {
+        navigate("/admin", { replace: true });
       } else {
-        setError("This frontend currently supports only teacher and student roles.");
+        setError("This account role is not supported on the frontend.");
       }
     } catch (requestError) {
       setError(requestError.message);
@@ -47,37 +52,50 @@ const LoginPage = () => {
   };
 
   return (
-    <section className="card login-card">
-      <h2>Login</h2>
-      <p className="muted">Use your registered email and password.</p>
+    <div className="login-layout">
+      <div className="login-hero card">
+        <img className="login-banner" src={uniBanner} alt="Subharti University banner" />
+        <div className="login-hero__overlay">
+          <p className="muted">Swami Vivekanand Subharti University</p>
+          <h2>BCA Department - Smart Attendance System</h2>
+          <p className="muted small-note">Secure access for students, teachers, and admins.</p>
+        </div>
+      </div>
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
+      <section className="card login-card">
+        <h2>Login</h2>
+        <p className="muted">Use your registered email and password.</p>
 
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
 
-      {error ? <p className="error">{error}</p> : null}
-    </section>
+          <button type="submit" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
+          </button>
+        </form>
+
+        {error ? <p className="error">{error}</p> : null}
+      </section>
+    </div>
   );
 };
 
 export default LoginPage;
+
+

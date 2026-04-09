@@ -6,13 +6,21 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:admin": "node scripts/utilities/seedAdmin.js",
+    "seed:demo": "node scripts/utilities/seedDemo.js",
+    "reset:seed": "node scripts/utilities/resetAndSeed.js",
+    "backfill:students": "node scripts/utilities/backfillStudentSections.js",
+    "backfill:subjects": "node scripts/utilities/backfillSubjectYearIds.js",
+    "assign:classes": "node scripts/utilities/assignTeacherClassSubjects.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.1.5",
+    "jsonwebtoken": "^9.0.0",
     "mongoose": "^8.6.2"
   },
   "devDependencies": {

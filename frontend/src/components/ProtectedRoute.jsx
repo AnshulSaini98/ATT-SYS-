@@ -1,21 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { getStoredUser } from "../services";
-
-export const getDefaultPathForUser = (user) => {
-  if (!user) {
-    return "/";
-  }
-
-  if (user.role === "teacher") {
-    return "/teacher";
-  }
-
-  if (user.role === "student") {
-    return "/student";
-  }
-
-  return "/";
-};
+import { getDefaultPathForUser } from "../utils/pathUtils";
 
 const ProtectedRoute = ({ requiredRole, children }) => {
   const currentUser = getStoredUser();

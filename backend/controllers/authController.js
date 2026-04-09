@@ -1,3 +1,4 @@
+const jwt = require("jsonwebtoken");
 const { User } = require("../models");
 const {
   sendSuccess,
@@ -9,49 +10,44 @@ const {
 
 const ALLOWED_ROLES = ["admin", "teacher", "student"];
 
+/**
+ * Generate JWT token for authenticated user.
+ * Token expires in 7 days by default.
+ */
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      email: user.email,
+      role: user.role,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+};
+
 const sanitizeUser = (userDocument) => ({
   id: userDocument._id,
   name: userDocument.name,
   email: userDocument.email,
   role: userDocument.role,
+  courseId: userDocument.courseId?._id || userDocument.courseId,
+  yearId: userDocument.yearId?._id || userDocument.yearId,
+  sectionId: userDocument.sectionId?._id || userDocument.sectionId,
+  courseName: userDocument.courseId?.name || userDocument.department,
+  yearNumber: userDocument.yearId?.yearNumber || userDocument.year,
+  sectionName: userDocument.sectionId?.name || userDocument.section,
+  department: userDocument.department,
+  year: userDocument.year,
+  section: userDocument.section,
 });
 
 const register = async (req, res) => {
-  try {
-    const missingFields = getMissingFields(req.body, ["name", "email", "password", "role"]);
-    if (missingFields.length > 0) {
-      return sendError(res, 400, "All fields are required.");
-    }
-
-    const normalizedEmail = normalizeEmail(req.body.email);
-    const normalizedRole = String(req.body.role).trim().toLowerCase();
-
-    if (!ALLOWED_ROLES.includes(normalizedRole)) {
-      return sendError(res, 400, "Role must be admin, teacher, or student.");
-    }
-
-    const existingUser = await User.findOne({ email: normalizedEmail });
-    if (existingUser) {
-      return sendError(res, 409, "Email already registered.");
-    }
-
-    const createdUser = await User.create({
-      name: req.body.name.trim(),
-      email: normalizedEmail,
-      password: req.body.password,
-      role: normalizedRole,
-    });
-
-    return sendSuccess(res, 201, "User registered successfully.", {
-      user: sanitizeUser(createdUser),
-    });
-  } catch (error) {
-    if (error.code === 11000) {
-      return sendError(res, 409, "Email already registered.");
-    }
-
-    return sendServerError(res, "Registration failed.", error);
-  }
+  return sendError(
+    res,
+    403,
+    "Public registration is disabled. Contact your administrator to create an account."
+  );
 };
 
 const login = async (req, res) => {
@@ -69,12 +65,23 @@ const login = async (req, res) => {
       return sendError(res, 401, "Invalid email or password.");
     }
 
+    if (user.isActive === false) {
+      return sendError(res, 403, "Account is deactivated. Please contact admin.");
+    }
+
     const isPasswordValid = await user.comparePassword(req.body.password);
     if (!isPasswordValid) {
       return sendError(res, 401, "Invalid email or password.");
     }
 
+    await user.populate("courseId", "name");
+    await user.populate("yearId", "yearNumber courseId");
+    await user.populate("sectionId", "name yearId");
+
+    const token = generateToken(user);
+
     return sendSuccess(res, 200, "Login successful.", {
+      token,
       user: sanitizeUser(user),
     });
   } catch (error) {
