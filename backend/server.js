@@ -9,7 +9,8 @@ const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// CORS configurationconst defaultAllowedOrigins = [
+// CORS configuration
+const defaultAllowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:5001",
